@@ -69,7 +69,7 @@ function buildDropDown() {
     // Empty innerHTML to ensure it is clean
     dropDownMenu.innerHTML = '';
     // Get our events
-    let currentEvents = events;
+    let currentEvents = getEventData();
 
     // Filter Cities - get array of city names
 
@@ -240,3 +240,72 @@ function displayEventData(eventsArray) {
 
 
 }
+
+// Get events from storage
+function getEventData() {
+    let currentEvents = JSON.parse(localStorage.getItem('portofcall--eventData'))  //Shared across all js on the browser so be careful of super common names. JSON javascript object notation. Parse turns a string into a data type. 
+    // The above assigns the stored data to currentEvents. Since this doesn't exist yet, it is null. Then the If statement fires because it is null, assigns currentEvents to events, stores it, and then returns it. 
+    if (currentEvents == null) {  //No value, the abscence of a value.Undefined means it hasn't been assigned. 
+        currentEvents = events;
+        localStorage.setItem('portofcall-eventData', JSON.stringify(currentEvents)); //Serialiazation - taking an object and turning it into a string.
+    }
+
+    return currentEvents;
+}
+
+function getEvents(element) {  //Entry point function
+
+    let currentEvents = getEventData();
+
+    let cityName = element.getAttribute('data-string');
+
+    let filteredEvents = currentEvents;
+
+    if (cityName != 'All') {
+        filteredEvents = currentEvents.filter(
+            function (event) {
+                if (cityName == event.city) {
+                    return event;
+                }
+            }
+        );
+    }
+
+    document.getElementById('statsHeader').textContent = cityName;
+    displayStats(filteredEvents);
+    displayEventData(filteredEvents);
+}
+
+function saveEventData() {
+
+
+    let eventName = document.getElementById('newEventName').value;
+    let cityName = document.getElementById('newEventCity').value;
+    let eventAttendance = parseInt(document.getElementById('newEventAttendance').value);
+    let eventDate = document.getElementById('newEventDate').value;
+
+    eventDate = `${eventDate} 00:00`;
+    eventDate = new Date(eventDate).toLocaleDateString();  //A constructor to turn it into a date object Date type class has a method/function 
+
+    let stateSelect = document.getElementById('newEventState');
+    let state = stateSelect.options[stateSelect.selectedIndex].text;
+
+    let newEvent = {
+        event: eventName,
+        city: cityName,
+        state: state,
+        attendance: eventAttendance,
+        date: eventDate,
+    };
+
+    let currentEvents = getEventData();
+    currentEvents.push(newEvent)
+
+    localStorage.setItem('portofcall--eventData', JSON.stringify(currentEvents)); //Locals torage only holds strings! MUST STRINGIFY
+
+    // Update the page
+
+    buildDropDown();
+    document.getElementById('statsHeader').textContent = 'All';
+    document.getElementById('newEventForm').reset();
+} 
