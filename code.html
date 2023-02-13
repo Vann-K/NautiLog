@@ -74,26 +74,377 @@
             <div class="col col-12 col-md-8">
                 <pre class="line-numbers">
                     <code class="language-js">
-                        function displayMessage() {
-                            let msg = document.getElementById('message').value;
+
+                        //Our array of data, shortened to save screen space.
+                        var events = [{
+                            event: "ComicCon",
+                            city: "New York",
+                            state: "New York",
+                            attendance: 240000,
+                            date: "06/01/2017",
+                        },
+
+                        ...}]
+                        <hr>
+
+                        <a href="#buildDropDownSection" class="text-decoration-none" id="buildDropDownCode">function buildDropDown()</a> 
+                        {
+                            // Get the drop down menu from page
+                            let dropDownMenu = document.getElementById('eventDropDown');
+
+                            // Empty innerHTML to ensure it is clean
+                            dropDownMenu.innerHTML = '';
+
+                            // Get our events
+                            let currentEvents = getEventData();
                         
-                            Swal.fire(
-                                {
-                                    backdrop: false,
-                                    title: 'NautiLog',
-                                    text: msg
-                                }
-                            );
+                            // Filter Cities - get array of city names                        
+                            // Pull out city names
+                            let eventCities = currentEvents.map((event) => event.city);
+
+                            //  filter the cities to only DISTINCT city names
+                            let distinctCities = [...new Set(eventCities)]; //... spread operator that makes an array. Set(an object, with a constructor (a function or method that creates and object) takes in array and gives back only distinct values
+                        
+                            // Get template from page
+                            const template = document.getElementById('dropDownItemTemplate');
+                        
+                            // Copy Template                        
+                            let dropDownTemplateNode = document.importNode(template.content, true);   // Import node is how we grab our template from the page. .content gets us what's inside the template. True is deep copy includes child elements of that template. false is shallow copy would not get the child elements.
+                        
+                            // Get &lt;a> tag 
+                            let menuItem = dropDownTemplateNode.querySelector('a'); // Takes a css selector and gives back the first thing that matches the css selector
+
+                            // Change the text
+                            menuItem.textContent = 'All Cities';
+                            menuItem.setAttribute("data-string", "All");
+                        
+                            // Add item to the page
+                            dropDownMenu.appendChild(menuItem); //Append puts it at the end. Puts menuItem on the drop down menu.
+                        
+                            for (let index = 0; index < distinctCities.length; index++) 
+                            {
+                                let cityMenuItem = document.importNode(template.content, true);
+                                let cityButton = cityMenuItem.querySelector('a');
+                        
+                                cityButton.textContent = distinctCities[index];
+                                cityButton.setAttribute("data-string", distinctCities[index]);
+                        
+                                dropDownMenu.appendChild(cityMenuItem);
+                            }
+                        
+                            displayStats(currentEvents);
+                            displayEventData(currentEvents);
                         }
+
+                        <hr>
+
+                        // Get events from storage
+                        <a href="#getEDSection" class="text-decoration-none" id="getEDCode">function getEventData()</a> 
+                        {
+                            let currentEvents = JSON.parse(localStorage.getItem('nautilog--eventData'))  //Shared across all js on the browser so be careful of super common names. JSON javascript object notation. Parse turns a string into a data type. 
+                            // The above assigns the stored data to currentEvents. Since this doesn't exist yet, it is null. Then the If statement fires because it is null, assigns currentEvents to events, stores it, and then returns it. 
+                            
+                                if (currentEvents == null) 
+                                {  //No value, the abscence of a value.Undefined means it hasn't been assigned. 
+                                    currentEvents = events;
+                                    localStorage.setItem('nautilog-eventData', JSON.stringify(currentEvents)); //Serialiazation - taking an object and turning it into a string.
+                                }
+                        
+                            return currentEvents;
+                        }
+                        <hr>
+                        
+                        <a href="#displayStatsSection" class="text-decoration-none" id="displayStatsCode">function displayStats(currentEvents) </a>
+                        {
+                            let totalAttendance = calcTotal(currentEvents);
+                            let averageAttendance = calcAverage(currentEvents, totalAttendance);
+                            let mostAttended = calcMostAttended(currentEvents);
+                            let leastAttended = calcLeastAttended(currentEvents);
+                        
+                            document.getElementById('total').textContent = totalAttendance.toLocaleString();
+                            document.getElementById('average').textContent = averageAttendance.toLocaleString("en-US", {maximumFractionDigits: 0,minimumFractionDigits: 0});
+                            document.getElementById('most').textContent = mostAttended.toLocaleString();
+                            document.getElementById('least').textContent = leastAttended.toLocaleString();
+                        }
+
+                        <hr>
+
+                        //Calculation functions
+                                                
+                        //Function to calculate the total attendance of all events
+                        <a href="#calcTotalSection" class="text-decoration-none" id="calcTotalCode">function calcTotal(currentEvents)</a> 
+                        {
+                            let sum = 0;
+                        
+                                for (i = 0; i < currentEvents.length; i++) 
+                                {
+                                    let currentEvent = currentEvents[i];
+                                    sum += currentEvent.attendance;
+                                }
+                        
+                            return sum;
+                        }
+
+
+                        
+                        <a href="#calcAverageSection" class="text-decoration-none" id="calcAverageCode">function calcAverage(currentEvents, totalAttendance)</a>
+                        {
+                            let total = totalAttendance;
+                            let average = total / currentEvents.length;
+
+                            return average;
+                        }
+
+                        
+                        <a href="#calcMASection" class="text-decoration-none" id="calcMACode">function calcMostAttended(currentEvents)</a>
+                        {
+                            let max = currentEvents[0].attendance;
+                        
+                                for (i = 0; i &lt; currentEvents.length; i++) 
+                                {
+                                    let currentEvent = currentEvents[i];
+                            
+                                        if (currentEvent.attendance > max) 
+                                        {
+                                            max = currentEvent.attendance;
+                                        }
+                                }
+                        
+                            return max;
+                        }
+
+
+                        
+                        <a href="#calcLASection" class="text-decoration-none" id="calcLACode">function calcLeastAttended(currentEvents) </a>
+                        {
+                            let minimum = currentEvents[0].attendance;
+                        
+                                for (i = 0; i < currentEvents.length[i]; i++) 
+                                {
+                                    let currentEvent = currentEvents[i];
+                            
+                                        if (currentEvent.attendance < min) 
+                                        {
+                                            minimum = currentEvent['attendance'];
+                                        }
+                                }
+                        
+                            return minimum;
+                        }
+                        <hr>
+                        
+                        <a href="#displayEDSection" class="text-decoration-none" id="displayEDCode">function displayEventData(currentEvents)</a> 
+                        {
+                            let tableBody = document.getElementById('tableBody');
+                            const tableRowTemplate = document.getElementById('eventTableRowTemplate');
+                        
+                            tableBody.innerHTML = '';
+                        
+                                for (i = 0; i &lt; currentEvents.length; i++) 
+                                {
+                                    let eventRow = document.importNode(tableRowTemplate.content, true);
+                                    let currentEvent = currentEvents[i];
+                            
+                                    let tableCells = eventRow.querySelectorAll("td");
+                            
+                                    tableCells[0].textContent = currentEvent.event;
+                                    tableCells[1].textContent = currentEvent.city;
+                                    tableCells[2].textContent = currentEvent.state;
+                                    tableCells[3].textContent = currentEvent.attendance;
+                                    tableCells[4].textContent = currentEvent.date;
+                            
+                                    tableBody.appendChild(eventRow);                            
+                                }
+                        }
+                        
+                        <hr />
+
+                        <a href="#getEventsSection" class="text-decoration-none" id="getEventsCode">function getEvents(element)</a> 
+                        {  //Entry point function
+                        
+                            let currentEvents = getEventData();                        
+                            let cityName = element.getAttribute('data-string');                        
+                            let filteredEvents = currentEvents;
+                        
+                                if (cityName != 'All') 
+                                {
+                                    filteredEvents = currentEvents.filter(
+                                        function (event) 
+                                        {
+                                            if (cityName == event.city)
+                                            {
+                                                return event;
+                                            }
+                                        }
+                                    );
+                                }
+                        
+                            document.getElementById('statsHeader').textContent = cityName;
+                            displayStats(filteredEvents);
+                            displayEventData(filteredEvents);
+                        }
+
+                        
+                        <a href="#saveEDSection" class="text-decoration-none" id="saveEDCode">function saveEventData(</a>) 
+                        {
+                        
+                        
+                            let eventName = document.getElementById('newEventName').value;
+                            let cityName = document.getElementById('newEventCity').value;
+                            let eventAttendance = parseInt(document.getElementById('newEventAttendance').value);
+                            let eventDate = document.getElementById('newEventDate').value;
+                        
+                            eventDate = `${eventDate} 00:00`;
+                            eventDate = new Date(eventDate).toLocaleDateString();  //A constructor to turn it into a date object Date type class has a method/function 
+                        
+                            let stateSelect = document.getElementById('newEventState');
+                            let state = stateSelect.options[stateSelect.selectedIndex].text;
+                        
+                            let newEvent = {
+                                event: eventName,
+                                city: cityName,
+                                state: state,
+                                attendance: eventAttendance,
+                                date: eventDate,
+                            };
+                        
+                            let currentEvents = getEventData();
+                            currentEvents.push(newEvent)
+                        
+                            localStorage.setItem('portofcall--eventData', JSON.stringify(currentEvents)); //Locals torage only holds strings! MUST STRINGIFY
+                        
+                            // Update the page
+                        
+                            buildDropDown();
+                            document.getElementById('statsHeader').textContent = 'All';
+                            document.getElementById('newEventForm').reset();
+                        } 
                     </code>
                 </pre>
 
             </div>
             <!-- Code Description -->
             <div class="col col-12 col-md-4">
-                <p>The code is structured in one function.</p>
-                <h4><code>displayMessage()</code></h4>
-                <p>This functions displays a message in a Sweet Alert.</p>
+                <p class="mb-3">
+                    The code is structured in ten functions. Called functions will be detailed in their own sections.
+                    Click a <code class="language-js">headline()</code> to scroll to that section of the code. And click
+                    the
+                    function name within the code to scroll to that write up section.
+                </p>
+                <a href="#buildDropDownCode" class="text-decoration-none">
+                    <p><code class="language-js fs-4" id="buildDropDownSection">buildDropDown()</code></p>
+                </a>
+                <hr>
+
+                <p>This function starts when our page is first loading. It's main task is to build our drop down menu
+                    and populate it with each city name from every event in our user's list. It does this by grabbing
+                    the whole list of events, then filtering it down to smaller lists based on information returned from
+                    the button. Then it asks more functions to complete
+                    their tasks and put all this information on the page.</p>
+                <br>
+
+                <a href="#getEDCode" class="text-decoration-none">
+                    <p><code class="language-js fs-4" id="getEDSection">getEventData()</code></p>
+                </a>
+                <hr>
+                <p>
+                    <code>getEventData()</code> looks into the local storage of the user's browser and checks if they
+                    have any event
+                    information there. If it doesn't find anything, it sets it to the default event information we have.
+                </p>
+                <br>
+
+                <a href="#displayStatsDownCode" class="text-decoration-none">
+                    <p><code class="language-js fs-4" id="displayStatsSection">displayStats()</code></p>
+                </a>
+                <hr>
+                <p>
+                    <code>displayStats()</code> takes in our list of <code>currentEvents</code> and then calls upon our
+                    four calculation functions to give it the values it needs to then put
+                    the stats of each city's list of events at the overall stats section of our page, near the dropdown.
+                </p>
+                <br>
+
+                <a href="#calcTotalCode" class="text-decoration-none">
+                    <p><code class="language-js fs-4" id="calcTotalSection">calcTotal()</code></p>
+                </a>
+                <hr>
+                <p>
+                    <code>calcTotal()</code> is passed <code>currentEvents</code> and simply calculates the total amount
+                    of attendees for either all or the city-filtered
+                    events.
+                </p>
+                <br>
+
+                <a href="#calcAverageCode" class="text-decoration-none">
+                    <p><code class="language-js fs-4" id="calcAverageSection">calcAverage()</code></p>
+                </a>
+                <hr>
+                <p>
+                    <code>calcAverage()</code> is given <code>currentEvents</code> and <code>totalAttendance</code> then
+                    calculates the average attendance of all or the city-filtered events.
+                </p>
+                <br>
+
+                <a href="#calcMACode" class="text-decoration-none">
+                    <p><code class="language-js fs-4" id="calcMASection">calcMostAttended()</code></p>
+                </a>
+                <hr>
+                <p>
+                    <code>calcMostAttended()</code> is passed <code>currentEvents</code> and then compares the
+                    attendance amount of each event and gives us the highest amount.
+                </p>
+                <br>
+
+                <a href="#calcLACode" class="text-decoration-none">
+                    <p><code class="language-js fs-4" id="calcLaSection">calcLeastAttended()</code></p>
+                </a>
+                <hr>
+                <p>
+                    <code>calcLeastAttended</code> is given <code>currentEvents</code> then it compares the attendance
+                    amount of each event and gives us the
+                </p>
+                <br>
+
+                <a href="#displayEDCode" class="text-decoration-none">
+                    <p><code class="language-js fs-4" id="displayEDSection">displayEventData()</code></p>
+                </a>
+                <hr>
+                <p>
+                    <code>displayEventData()</code> is one of our major functions for displaying information onto the
+                    page. It is given the <code>currentEvents</code> to work with. It grabs a template, or section of
+                    HTML that we can use over and over, then for each of the events in our <code>currentEvents</code> it
+                    uses the template to create a table row filled with the information of a single event =.
+                </p>
+                <br>
+
+                <a href="#getEventsCode" class="text-decoration-none">
+                    <p><code class="language-js fs-4" id="getEventsSection">getEvents()</code></p>
+                </a>
+                <hr>
+                <p>
+                    <code>getEvents()</code> is caleld upon by our different city buttons. It enables the filter for our
+                    <code>currentEvents</code> list by grabbing the city name from the HTML element, then we ask if the
+                    corresponding button name isn't "All" then it uses the city name retrieved and filters the
+                    <code>currentEvents</code> based on the city name. It then also changes the header for our stats
+                    spot,
+                    changing it from "All Cities" to the name of the city the events took place in.
+                </p>
+                <br>
+
+                <a href="#saveEDCode" class="text-decoration-none">
+                    <p><code class="language-js fs-4" id="saveEDSection">saveEventData()</code></p>
+                </a>
+                <hr>
+                Our final function, <code>saveEventData()</code> is fairly important. It works with our 'Create Event'
+                button from the page. It reaches into each part of the form, takes the information the user has input
+                and then creates an object that is added to our event list. It then stores that in the local storage of
+                the browser, and updates the page to include the new event.
+
+
+            </div>
+            <div class="text-end mb-2"><a href="#" class="text-decoration-none"><code
+                        class="language-js">returnToTop()</code></a>
             </div>
         </div>
 

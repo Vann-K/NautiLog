@@ -89,7 +89,7 @@ function buildDropDown() {
     let menuItem = dropDownTemplateNode.querySelector('a'); // Takes a css selector and gives back the first thing that matches the css selector
     // Change the text
     menuItem.textContent = 'All Cities';
-    menuItem.setAttribute("data-string", "All"); //<a class="dropdDownItem" data-string="All"
+    menuItem.setAttribute("data-string", "All"); //<a class="dropDownItem" data-string="All"
 
     // Add item to the page
     dropDownMenu.appendChild(menuItem); //Append puts it at the end. Puts menuItem on the drop down menu.
@@ -114,11 +114,11 @@ function buildDropDown() {
 
 }
 
-function displayStats(eventsArray) {
-    let totalAttendance = calcTotal(eventsArray);
-    let averageAttendance = calcAverage(eventsArray);
-    let mostAttended = calcMostAttended(eventsArray);
-    let leastAttended = calcLeastAttended(eventsArray);
+function displayStats(currentEvents) {
+    let totalAttendance = calcTotal(currentEvents)
+    let averageAttendance = calcAverage(currentEvents, totalAttendance);
+    let mostAttended = calcMostAttended(currentEvents);
+    let leastAttended = calcLeastAttended(currentEvents);
 
     // Do some math
 
@@ -132,30 +132,30 @@ function displayStats(eventsArray) {
     document.getElementById('least').textContent = leastAttended.toLocaleString();
 }
 
-function calcTotal(eventsArray) {
+function calcTotal(currentEvents) {
 
     let sum = 0;
 
-    for (i = 0; i < eventsArray.length; i++) {
-        let currentEvent = eventsArray[i];
+    for (i = 0; i < currentEvents.length; i++) {
+        let currentEvent = currentEvents[i];
         sum += currentEvent.attendance;
     }
 
     return sum;
 }
 
-function calcAverage(eventsArray) {
-    let total = calcTotal(eventsArray);
-    let average = total / eventsArray.length;
+function calcAverage(currentEvents, totalAttendance) {
+    let total = totalAttendance;
+    let average = total / currentEvents.length;
     return average;
 
 }
 
-function calcMostAttended(eventsArray) {
-    let max = eventsArray[0].attendance;
+function calcMostAttended(currentEvents) {
+    let max = currentEvents[0].attendance;
 
-    for (i = 0; i < eventsArray.length; i++) {
-        let currentEvent = eventsArray[i];
+    for (i = 0; i < currentEvents.length; i++) {
+        let currentEvent = currentEvents[i];
 
         if (currentEvent.attendance > max) {
             max = currentEvent.attendance;
@@ -165,11 +165,11 @@ function calcMostAttended(eventsArray) {
     return max;
 }
 
-function calcLeastAttended(eventsArray) {
-    let minimum = eventsArray[0].attendance;
+function calcLeastAttended(currentEvents) {
+    let minimum = currentEvents[0].attendance;
 
-    for (i = 0; i < eventsArray.length[i]; i++) {
-        let currentEvent = eventsArray[i];
+    for (i = 0; i < currentEvents.length[i]; i++) {
+        let currentEvent = currentEvents[i];
 
         if (currentEvent.attendance < min) {
             minimum = currentEvent['attendance'];
@@ -180,41 +180,7 @@ function calcLeastAttended(eventsArray) {
 }
 
 
-function calcStats(eventsArray) {
-    let minimum = eventsArray[0].attendance;
-    let max = eventsArray[0].attendance;
-    let sum = 0
-    let average = 0;
-
-    for (let i = 0; index < eventsArray.length; i++) {
-        let currentEvent = eventsArray[i];
-
-        sum += currentEvent.attendance
-
-        if (currentEvent.attendance > max) {
-            max = currentEvent.attendance;
-        }
-
-        if (currentEvent.attendance < min) {
-            min = currentEvent['attendance'];
-        }
-
-    }
-    average = sum / eventsArray.length
-
-    let stats = {
-        total: sum,
-        averageAttendance: average,
-        minimumAttendance: minimum,
-        maximumAttendance: max
-    }
-
-    return stats
-}
-
-
-
-function displayEventData(eventsArray) {
+function displayEventData(currentEvents) {
     let tableBody = document.getElementById('tableBody');
     const tableRowTemplate = document.getElementById('eventTableRowTemplate');
 
@@ -222,9 +188,9 @@ function displayEventData(eventsArray) {
 
 
 
-    for (i = 0; i < eventsArray.length; i++) {
+    for (i = 0; i < currentEvents.length; i++) {
         let eventRow = document.importNode(tableRowTemplate.content, true);
-        let currentEvent = eventsArray[i];
+        let currentEvent = currentEvents[i];
 
         let tableCells = eventRow.querySelectorAll("td");
 
